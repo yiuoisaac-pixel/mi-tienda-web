@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="es" translate="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deyalex Fashion | <logo-circular.png></logo-circular> Premium</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --accent-color: #ff00ff;
+            --dark-bg: #0b0b1a;
+            --gold: #d4af37;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: white;
+            font-family: 'Poppins', sans-serif;
+            overflow-x: hidden;
+            background: radial-gradient(circle at top, #1a1a3a 0%, #050505 100%);
+            min-height: 100vh;
+        }
+
+        /* Header y Logo */
+        .logo-container { text-align: center; padding: 25px 10px; }
+        .logo-circle { 
+            max-width: 120px; 
+            filter: drop-shadow(0 0 12px var(--accent-color)); 
+            cursor: pointer;
+            transition: transform 0.3s;
+            border-radius: 50%;
+        }
+        .logo-circle:active { transform: scale(0.9); }
+
+        /* Navegación */
+        .nav-categories { 
+            display: flex; 
+            justify-content: center; 
+            gap: 10px; 
+            flex-wrap: wrap; 
+            margin-bottom: 30px; 
+            padding: 0 10px;
+        }
+
+        .cat-card {
+            border: 1px solid var(--gold);
+            padding: 12px 15px;
+            text-align: center;
+            min-width: 100px;
+            cursor: pointer;
+            transition: 0.3s;
+            background: rgba(255, 255, 255, 0.05);
+            clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .cat-card.active {
+            background: var(--accent-color);
+            box-shadow: 0 0 20px var(--accent-color);
+            border-color: white;
+            color: black;
+        }
+
+        /* Productos */
+        .product-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: 0.3s;
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .product-img { height: 400px; background-size: cover; background-position: center; position: relative; }
+        .price-tag { position: absolute; bottom: 12px; right: 12px; background: var(--gold); color: black; padding: 6px 18px; font-weight: bold; border-radius: 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        .status-badge { position: absolute; top: 12px; left: 12px; background: #ff0000; color: white; font-size: 11px; padding: 3px 10px; font-weight: bold; text-transform: uppercase; border-radius: 4px; }
+
+        .btn-buy {
+            background: linear-gradient(45deg, #25D366, #128C7E);
+            border: none;
+            color: white;
+            width: 100%;
+            padding: 12px;
+            transition: 0.3s;
+            font-weight: 600;
+            border-radius: 0 0 12px 12px;
+            letter-spacing: 1px;
+        }
+        .btn-buy:hover { opacity: 0.9; transform: translateY(-2px); }
+        .btn-buy:disabled { background: #444; cursor: not-allowed; }
+
+        /* Admin Tools */
+        #btn-master-add {
+            display: none; position: fixed; bottom: 30px; right: 30px;
+            width: 65px; height: 65px; background: var(--gold);
+            color: black; border-radius: 50%; font-size: 35px;
+            border: none; cursor: pointer; z-index: 1000; box-shadow: 0 0 25px var(--gold);
+            align-items: center; justify-content: center;
+        
+        }
+
+        #admin-modal {
+            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: #0d0d1a; border: 2px solid var(--gold); padding: 25px;
+            z-index: 2000; border-radius: 15px; width: 90%; max-width: 420px;
+            box-shadow: 0 0 100px rgba(0,0,0,1);
+        }
+
+        .admin-delete-btn { display: none; font-size: 11px; color: #ff4444; background: none; border: none; margin: 10px auto; cursor: pointer; text-align: center; width: 100%; }
+
+        /* Themes */
+        .theme-mujeres { --accent-color: #ff00ff; }
+        .theme-hombres { --accent-color: #00d2ff; }
+        .theme-niños { --accent-color: #ffff00; }
+        .theme-trajes { --accent-color: #00ffcc; }
+        .theme-pijama { --accent-color: #9d00ff; }
+
+        .empty-state { padding: 80px 20px; opacity: 0.4; text-align: center; border: 2px dashed rgba(255,255,255,0.1); border-radius: 20px; margin: 20px; }
+        /* Tu Firma Estelar */
+        .dev-signature {
+            position: fixed;
+            bottom: 15px;
+            left: 20px;
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.4);
+            letter-spacing: 2px;
+            z-index: 500;
+            font-family: 'Poppins', sans-serif;
+            transition: 0.4s;
+            cursor: default;
+            user-select: none;
+        }
+        .dev-signature:hover {
+            color: #ff00ff; /* Cambia a magenta al pasar el mouse */
+            text-shadow: 0 0 10px #ff00ff;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body class="theme-mujeres" translate="no">
+
+    <div class="container py-3">
+        <header style="text-align: center; padding: 30px 10px; display: flex; flex-direction: column; align-items: center;">
+            
+            <div style="text-align: center;">
+                <h1 style="font-family: 'Cinzel', serif; color: #d4af37; margin: 0; font-size: 2.5rem;">DEYALEX FASHION</h1>
+                <p style="letter-spacing: 4px; font-size: 14px; color: rgba(255,255,255,0.7); margin: 5px 0;">PREMIUM COLLECTION</p>
+                
+                <div style="text-align: center;">
+                    <div onclick="toggleAdminMode()" style="display: inline-block; font-size: 10px; color: #ff00ff; letter-spacing: 3px; margin-top: 5px; font-weight: bold; cursor: pointer;">
+                        BY JJOSUE🌠
+                    </div>
+                
+                    <div id="share-link" onclick="copyPageLink()" style="font-size: 11px; color: #00d2ff; cursor: pointer; margin-top: 8px; text-decoration: underline; letter-spacing: 1px; opacity: 0.8; display: block;">
+                        Copiar link para compartir 🔗
+                    </div>
+                </div>
+                </div>
+            </div>      
+        </header>
+          <nav class="nav-categories">
+            <div class="cat-card active" onclick="changeSection('mujeres')">Mujeres</div>
+            <div class="cat-card" onclick="changeSection('hombres')">Hombres</div>
+            <div class="cat-card" onclick="changeSection('niños')">Niños</div>
+            <div class="cat-card" onclick="changeSection('trajes')">Bañadores</div>
+            <div class="cat-card" onclick="changeSection('pijama')">Pijamas</div>
+        </nav>
+
+        <div class="row g-3" id="product-grid"></div>
+    </div>
+
+    <button id="btn-master-add" onclick="toggleModal()">+</button>
+
+    <div id="admin-modal">
+        <h6 class="text-center text-warning mb-3" id="current-edit-label">AÑADIR PRENDA</h6>
+        
+        <label class="small text-muted">Imagen de la prenda:</label>
+        <input type="file" id="new-img-file" accept="image/*" class="form-control form-control-sm bg-dark text-white mb-2 border-secondary">
+        <input type="hidden" id="new-img">
+    
+        <input type="text" id="new-nombre" placeholder="Nombre del artículo" class="form-control bg-dark text-white border-secondary mb-2">
+        
+        <div class="row mb-3">
+            <div class="col"><input type="number" id="new-precio" placeholder="Precio $" class="form-control bg-dark text-white border-secondary"></div>
+            <div class="col"><input type="text" id="new-talla" placeholder="Tallas (S, M, L)" class="form-control bg-dark text-white border-secondary"></div>
+        </div>
+
+        <select id="new-stock" class="form-select bg-dark text-white border-secondary mb-4">
+            <option value="true">Disponible</option>
+            <option value="false">Agotado</option>
+        </select>
+
+        <button class="btn btn-warning w-100 fw-bold" onclick="addProduct()">GUARDAR PRODUCTO</button>
+        <button class="btn btn-link btn-sm w-100 text-muted mt-2" onclick="toggleModal()">Cerrar</button>
+    </div>
+    <script>
+        const WHATSAPP_NUMBER = "584143302169";
+        
+        // Simplificado: Solo clave
+        let ADMIN_PASSWORD = localStorage.getItem('deyalex_pass') || "1234";
+    
+        let inventory = JSON.parse(localStorage.getItem('deyalex_final_v4')) || { mujeres: [], hombres: [], niños: [], trajes: [], pijama: [] };
+        let currentSection = 'mujeres';
+        let isAdminActive = false;
+    
+        // Procesar imagen
+        document.getElementById('new-img-file').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    document.getElementById('new-img').value = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    
+        // Función para Huella Dactilar
+        async function intentarAccesoBiometrico() {
+            if (window.PublicKeyCredential) {
+                try {
+                    const credential = await navigator.credentials.get({
+                        publicKey: {
+                            challenge: new Uint8Array([1, 2, 3, 4]),
+                            userVerification: "required"
+                        }
+                    });
+                    return !!credential;
+                } catch (e) {
+                    return false;
+                }
+            }
+            return false;
+        }
+    
+        async function toggleAdminMode() {
+            if(!isAdminActive) {
+                let autenticado = false;
+                
+                // Intento con Huella primero (opcional)
+                if (window.PublicKeyCredential && confirm("¿Ingresar con Huella Dactilar?")) {
+                    autenticado = await intentarAccesoBiometrico();
+                }
+    
+                // Si no hay huella, pide solo la CLAVE
+                if (!autenticado) {
+                    let p = prompt("Introduce la Clave de Administrador:");
+                    if(p === ADMIN_PASSWORD) {
+                        autenticado = true;
+                    } else if (p !== null) {
+                        alert("Clave incorrecta");
+                    }
+                }
+                
+                if(autenticado) {
+                    isAdminActive = true;
+                    document.getElementById('btn-master-add').style.display = 'flex';
+                    alert("¡Modo Editor Activado!");
+                }
+            } else {
+                let opcion = prompt("MODO EDITOR ACTIVO\n\nEscribe 'SALIR' para cerrar sesión.\nEscribe 'CLAVE' para cambiar la contraseña.");
+                
+                if(opcion && opcion.toUpperCase() === 'SALIR') {
+                    isAdminActive = false;
+                    document.getElementById('btn-master-add').style.display = 'none';
+                    alert("Sesión cerrada.");
+                } else if(opcion && opcion.toUpperCase() === 'CLAVE') {
+                    let nuevaClave = prompt("Introduce la nueva clave:");
+                    if(nuevaClave && nuevaClave.trim() !== "") {
+                        ADMIN_PASSWORD = nuevaClave;
+                        localStorage.setItem('deyalex_pass', nuevaClave); 
+                        alert("¡Clave actualizada!");
+                    }
+                }
+            }
+            renderProducts(currentSection);
+        }
+    
+        window.addEventListener('keydown', (e) => { 
+            if(e.key === 'F2') { e.preventDefault(); toggleAdminMode(); } 
+        });
+    
+        function toggleModal() {
+            document.getElementById('current-edit-label').innerText = "AÑADIR A: " + currentSection.toUpperCase();
+            const m = document.getElementById('admin-modal');
+            m.style.display = m.style.display === 'block' ? 'none' : 'block';
+        }
+    
+        function changeSection(s) {
+            currentSection = s;
+            document.body.className = 'theme-' + s;
+            document.querySelectorAll('.cat-card').forEach(c => c.classList.remove('active'));
+            if(event && event.currentTarget) event.currentTarget.classList.add('active');
+            renderProducts(s);
+        }
+    
+        function addProduct() {
+            const img = document.getElementById('new-img').value;
+            const nom = document.getElementById('new-nombre').value;
+            const pre = document.getElementById('new-precio').value;
+            const tal = document.getElementById('new-talla').value;
+            const sto = document.getElementById('new-stock').value === "true";
+    
+            if(!img || !nom || !pre) return alert("Error: Faltan datos.");
+    
+            inventory[currentSection].push({ id: Date.now(), nom, pre, tal, sto, img });
+            localStorage.setItem('deyalex_final_v4', JSON.stringify(inventory));
+            
+            // CIRUGÍA: Limpiar campos pero NO cerrar el modal
+            document.getElementById('new-img').value = "";
+            document.getElementById('new-img-file').value = "";
+            document.getElementById('new-nombre').value = "";
+            document.getElementById('new-precio').value = "";
+            document.getElementById('new-talla').value = "";
+            
+            alert("✔ Artículo guardado. Puedes añadir otro.");
+            renderProducts(currentSection);
+        }
+    
+        function deleteProduct(id) {
+            if(confirm("¿Borrar esta prenda?")) {
+                inventory[currentSection] = inventory[currentSection].filter(p => p.id !== id);
+                localStorage.setItem('deyalex_final_v4', JSON.stringify(inventory));
+                renderProducts(currentSection);
+            }
+        }
+    
+        function sendWhatsApp(nombre, precio) {
+            const msg = `Hola Deyalex Fashion, me interesa: *${nombre}* ($${precio}). ¿Está disponible?`;
+            window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
+        }
+    
+        function renderProducts(s) {
+            const grid = document.getElementById('product-grid');
+            if(!grid) return;
+            grid.innerHTML = "";
+            const items = inventory[s] || [];
+    
+            if(items.length === 0) {
+                grid.innerHTML = `<div class="empty-state"><h3>Catálogo Vacío</h3><p>Usa el modo administrador para subir ropa.</p></div>`;
+                return;
+            }
+    
+            items.forEach(p => {
+                grid.innerHTML += `
+                    <div class="col-6 col-md-4">
+                        <div class="product-card">
+                            <div class="product-img" style="background-image: url('${p.img}')">
+                                ${p.sto ? '' : '<span class="status-badge">Agotado</span>'}
+                                <span class="price-tag">$${p.pre}</span>
+                            </div>
+                            <div class="p-2 text-center">
+                                <h6 class="text-uppercase fw-bold mb-1" style="font-size: 13px;">${p.nom}</h6>
+                                <p class="small text-muted mb-2">Tallas: ${p.tal}</p>
+                                <button class="btn-buy" ${p.sto ? '' : 'disabled'} onclick="sendWhatsApp('${p.nom}', '${p.pre}')">
+                                    ${p.sto ? 'PEDIR POR WA' : 'SIN STOCK'}
+                                </button>
+                                <button class="admin-delete-btn" style="display: ${isAdminActive ? 'block' : 'none'}" onclick="deleteProduct(${p.id})">ELIMINAR ×</button>
+                            </div>
+                        </div>
+                    </div>`;
+            });
+        }
+    
+        renderProducts('mujeres');
+        function copyPageLink() {
+    const el = document.createElement('textarea');
+    el.value = window.location.href; // Toma la URL actual de la página
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+    
+    // Feedback visual rápido
+    const linkDiv = document.getElementById('share-link');
+    const originalText = linkDiv.innerText;
+    linkDiv.innerText = "¡Copiado! ✅";
+    linkDiv.style.color = "#25D366";
+    
+    setTimeout(() => {
+        linkDiv.innerText = originalText;
+        linkDiv.style.color = "#00d2ff";
+    }, 2000);
+}
+    </script>
+    
+</body>
+</html>

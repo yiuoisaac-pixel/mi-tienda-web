@@ -1,0 +1,36 @@
+/* Diseño base para que se vea bien en celular */
+body { 
+    background-color: #050505; 
+        color: white; 
+            font-family: 'Arial', sans-serif; 
+                text-align: center; 
+                    margin: 0; 
+                        padding: 20px; 
+                        }
+
+                        .neon-title { 
+                            font-size: 2rem; 
+                                text-shadow: 0 0 10px #fff, 0 0 20px #fff; 
+                                    margin-bottom: 30px; 
+                                    }
+
+                                    .card { 
+                                        padding: 25px; 
+                                            margin: 15px auto; 
+                                                border-radius: 15px; 
+                                                    border: 2px solid; 
+                                                        cursor: pointer; 
+                                                            font-weight: bold;
+                                                                max-width: 300px;
+                                                                    transition: 0.3s;
+                                                                    }
+
+                                                                    /* Colores Neón por sección */
+                                                                    .mujer { border-color: #ff69b4; color: #ff69b4; box-shadow: 0 0 10px #ff69b4; }
+                                                                    .hombre { border-color: #00bfff; color: #00bfff; box-shadow: 0 0 10px #00bfff; }
+                                                                    .nino { border-color: #ffff00; color: #ffff00; box-shadow: 0 0 10px #ffff00; }
+                                                                    .bano { border-color: #39ff14; color: #39ff14; box-shadow: 0 0 10px #39ff14; }
+                                                                    .pijama { border-color: #bf00ff; color: #bf00ff; box-shadow: 0 0 10px #bf00ff; }
+
+                                                                    .card:hover { transform: scale(1.05); }
+                                                                    
