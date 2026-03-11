@@ -1,0 +1,146 @@
+// 1. CONFIGURACIÓN DE FIREBASE
+const firebaseConfig = {
+    apiKey: "AIzaSyD5oo4LEgolu0ykpIVKKJCq8deZu749bTY",
+    authDomain: "deyalextienda.firebaseapp.com",
+    projectId: "deyalextienda",
+    storageBucket: "deyalextienda.firebasestorage.app",
+    messagingSenderId: "410860484998",
+    appId: "1:410860484998:web:23129e512c27e068499407",
+    measurementId: "G-T7ZRTLXDE8",
+    databaseURL: "https://deyalextienda-default-rtdb.firebaseio.com"
+};
+
+// Inicializar Firebase
+firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
+
+// 2. VARIABLES DE ESTADO
+const WHATSAPP_NUMBER = "584143302169";
+let ADMIN_PASSWORD = localStorage.getItem('deyalex_pass') || "1234";
+let currentSection = 'mujeres';
+let isAdminActive = false;
+
+// 3. PROCESAR IMAGEN (Convertir a texto para Firebase)
+document.getElementById('new-img-file').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            document.getElementById('new-img').value = event.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+// 4. FUNCIONES DE ADMINISTRACIÓN
+async function toggleAdminMode() {
+    if(!isAdminActive) {
+        let p = prompt("Introduce la Clave de Administrador:");
+        if(p === ADMIN_PASSWORD) {
+            isAdminActive = true;
+            document.getElementById('btn-master-add').style.display = 'flex';
+            alert("¡Modo Editor Activado!");
+            renderProducts(currentSection);
+        } else if (p !== null) {
+            alert("Clave incorrecta");
+        }
+    } else {
+        let opcion = prompt("MODO EDITOR ACTIVO\n\nEscribe 'SALIR' para cerrar sesión.");
+        if(opcion && opcion.toUpperCase() === 'SALIR') {
+            isAdminActive = false;
+            document.getElementById('btn-master-add').style.display = 'none';
+            alert("Sesión cerrada.");
+            renderProducts(currentSection);
+        }
+    }
+}
+
+function toggleModal() {
+    document.getElementById('current-edit-label').innerText = "AÑADIR A: " + currentSection.toUpperCase();
+    const m = document.getElementById('admin-modal');
+    m.style.display = m.style.display === 'block' ? 'none' : 'block';
+}
+
+function changeSection(s) {
+    currentSection = s;
+    document.body.className = 'theme-' + s;
+    document.querySelectorAll('.cat-card').forEach(c => c.classList.remove('active'));
+    if(event && event.currentTarget) event.currentTarget.classList.add('active');
+    renderProducts(s);
+}
+
+// 5. OPERACIONES CON FIREBASE
+function addProduct() {
+    const img = document.getElementById('new-img').value;
+    const nom = document.getElementById('new-nombre').value;
+    const pre = document.getElementById('new-precio').value;
+    const tal = document.getElementById('new-talla').value;
+    const sto = document.getElementById('new-stock').value === "true";
+
+    if(!img || !nom || !pre) return alert("Error: Faltan datos.");
+
+    const nuevoProducto = { id: Date.now(), nom, pre, tal, sto, img };
+
+    database.ref('inventario/' + currentSection).push(nuevoProducto)
+    .then(() => {
+        alert("✔ ¡Producto subido a la nube!");
+        toggleModal(); // Cierra el modal al terminar
+        // Limpiar campos
+        document.getElementById('new-img').value = "";
+        document.getElementById('new-img-file').value = "";
+        document.getElementById('new-nombre').value = "";
+        document.getElementById('new-precio').value = "";
+    })
+    .catch(err => alert("Error: " + err.message));
+}
+
+function renderProducts(s) {
+    const grid = document.getElementById('product-grid');
+    if(!grid) return;
+    grid.innerHTML = "<p class='text-center mt-5'>Cargando colección...</p>";
+
+    database.ref('inventario/' + s).on('value', (snapshot) => {
+        grid.innerHTML = "";
+        const data = snapshot.val();
+
+        if(!data) {
+            grid.innerHTML = `<div class="empty-state"><h3>Catálogo Vacío</h3><p>Usa el modo administrador para subir ropa.</p></div>`;
+            return;
+        }
+
+        Object.keys(data).forEach(key => {
+            const p = data[key];
+            grid.innerHTML += `
+                <div class="col-6 col-md-4">
+                    <div class="product-card">
+                        <div class="product-img" style="background-image: url('${p.img}')">
+                            ${p.sto ? '' : '<span class="status-badge">Agotado</span>'}
+                            <span class="price-tag">$${p.pre}</span>
+                        </div>
+                        <div class="p-2 text-center">
+                            <h6 class="text-uppercase fw-bold mb-1" style="font-size: 13px;">${p.nom}</h6>
+                            <p class="small text-muted mb-2">Tallas: ${p.tal}</p>
+                            <button class="btn-buy" ${p.sto ? '' : 'disabled'} onclick="sendWhatsApp('${p.nom}', '${p.pre}')">
+                                ${p.sto ? 'PEDIR POR WA' : 'SIN STOCK'}
+                            </button>
+                            <button class="admin-delete-btn" style="display: ${isAdminActive ? 'block' : 'none'}" onclick="deleteProduct('${key}')">ELIMINAR ×</button>
+                        </div>
+                    </div>
+                </div>`;
+        });
+    });
+}
+
+function deleteProduct(key) {
+    if(confirm("¿Borrar esta prenda definitivamente?")) {
+        database.ref('inventario/' + currentSection + '/' + key).remove();
+    }
+}
+
+function sendWhatsApp(nombre, precio) {
+    const msg = `Hola Deyalex Fashion, me interesa: *${nombre}* ($${precio}). ¿Está disponible?`;
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
+}
+
+// Iniciar cargando la sección de mujeres
+renderProducts('mujeres');
